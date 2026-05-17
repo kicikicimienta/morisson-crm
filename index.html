@@ -3277,7 +3277,11 @@ function setupRoleUI() {
   if (prospektyTab) prospektyTab.style.display = isDominik() ? 'flex' : 'none';
   const zadaniaTab = document.getElementById('tab-zadania');
   if (zadaniaTab) zadaniaTab.style.display = isDominik() ? 'flex' : 'none';
-  if (isJedrzej()) switchPage('jedrzej');
+  if (isJedrzej()) {
+    switchPage('jedrzej');
+  } else {
+    switchPage('dashboard');
+  }
 }
 
 function renderJedrzejView() {
