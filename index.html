@@ -2826,7 +2826,7 @@ function toggleStageDetail(stageKey, stageLabel, stageColor) {
     return;
   }
   body.innerHTML = stageQuotes.map(q => {
-    const days = daysSince(q.updatedAt ? q.tsToDate(updatedAt) : null);
+    const days = daysSince(q.updatedAt ? tsToDate(q.updatedAt) : null);
     const dClass = days > 7 ? 'days-urgent' : days > 3 ? 'days-warn' : 'days-ok';
     return `<tr onclick="openEditQuote('${q.id}')">
       <td><strong>${clientName(q.klientId)}</strong></td>
@@ -2908,11 +2908,11 @@ function renderDashboard() {
     }
   });
   const noContactClients = quotes.filter(q => q.etap === 'wyslane').filter(q => {
-    const days = daysSince(q.updatedAt ? q.tsToDate(updatedAt) : null);
+    const days = daysSince(q.updatedAt ? tsToDate(q.updatedAt) : null);
     return days !== null && days >= 3;
   });
   noContactClients.forEach(q => {
-    reminders.push({ urgent: false, text: `Brak odpowiedzi od <strong>${clientName(q.klientId)}</strong> — wycena wysłana ${daysSince(q.updatedAt ? q.tsToDate(updatedAt) : null)} dni temu`, qId: q.id });
+    reminders.push({ urgent: false, text: `Brak odpowiedzi od <strong>${clientName(q.klientId)}</strong> — wycena wysłana ${daysSince(q.updatedAt ? tsToDate(q.updatedAt) : null)} dni temu`, qId: q.id });
   });
 
   const container = document.getElementById('remindersContainer');
@@ -2935,7 +2935,7 @@ function renderDashboard() {
     return;
   }
   body.innerHTML = active.map(q => {
-    const days = daysSince(q.createdAt ? q.tsToDate(createdAt) : null);
+    const days = daysSince(q.createdAt ? tsToDate(q.createdAt) : null);
     return `<tr onclick="openEditQuote('${q.id}')">
       <td onclick="event.stopPropagation()"><input type="checkbox" class="dash-quote-checkbox" value="${q.id}" onchange="updateDashSelection()" onclick="event.stopPropagation()" style="cursor:pointer;accent-color:var(--accent)"></td>
       <td><strong>${clientName(q.klientId)}</strong></td>
@@ -2966,7 +2966,7 @@ function renderKanban() {
       </div>
       <div class="kanban-cards">
         ${cards.length ? cards.map(q => {
-          const days = daysSince(q.createdAt ? q.tsToDate(createdAt) : null);
+          const days = daysSince(q.createdAt ? tsToDate(q.createdAt) : null);
           let dClass = days > 7 ? 'days-urgent' : days > 3 ? 'days-warn' : 'days-ok';
           const stageOrder = ['nowe','u_jedrzeja','wyslane','czeka','wygrane','przegrane'];
           const currentIdx = stageOrder.indexOf(q.etap);
@@ -3004,7 +3004,7 @@ function renderClients() {
   body.innerHTML = filtered.map(c => {
     const qCount = quotes.filter(q => q.klientId === c.id).length;
     const lastQ = quotes.filter(q => q.klientId === c.id)[0];
-    const lastDate = lastQ && lastQ.updatedAt ? lastQ.tsToDate(updatedAt) : c.createdAt ? c.tsToDate(createdAt) : '';
+    const lastDate = lastQ && lastQ.updatedAt ? tsToDate(lastQ.updatedAt) : c.createdAt ? tsToDate(c.createdAt) : '';
     return `<tr onclick="openEditClient('${c.id}')">
       <td><div style="display:flex;align-items:center;gap:8px">
         <div style="width:30px;height:30px;border-radius:6px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">${initials(c.nazwa)}</div>
@@ -3043,8 +3043,8 @@ function renderQuotes() {
     return;
   }
   body.innerHTML = filtered.map(x => {
-    const days = daysSince(x.createdAt ? x.tsToDate(createdAt) : null);
-    const updatedDate = x.updatedAt ? x.tsToDate(updatedAt) : '';
+    const days = daysSince(x.createdAt ? tsToDate(x.createdAt) : null);
+    const updatedDate = x.updatedAt ? tsToDate(x.updatedAt) : '';
     return `<tr onclick="openEditQuote('${x.id}')">
       <td onclick="event.stopPropagation()"><input type="checkbox" class="quote-checkbox" value="${x.id}" onchange="updateQuoteSelection()" onclick="event.stopPropagation()" style="cursor:pointer;accent-color:var(--accent)"></td>
       <td><strong>${clientName(x.klientId)}</strong></td>
@@ -3162,7 +3162,7 @@ function renderWon() {
 
   body.innerHTML = won.map(q => {
     const client = clients.find(c => c.id === q.klientId);
-    const date = q.updatedAt ? q.tsToDate(updatedAt) : '';
+    const date = q.updatedAt ? tsToDate(q.updatedAt) : '';
     return `<tr onclick="openEditQuote('${q.id}')">
       <td><strong>${clientName(q.klientId)}</strong></td>
       <td style="font-size:12px;color:var(--text-2);max-width:220px;overflow:hidden;text-overflow:ellipsis">${q.opis||'—'}</td>
@@ -3179,13 +3179,13 @@ function renderNoReply() {
   if (!section || !body) return;
   const noReply = quotes.filter(q => {
     if (q.etap !== 'wyslane') return false;
-    const updated = q.updatedAt ? q.tsToDate(updatedAt) : null;
+    const updated = q.updatedAt ? tsToDate(q.updatedAt) : null;
     const days = daysSince(updated);
     return days !== null && days >= 5;
   });
   section.style.display = noReply.length ? 'block' : 'none';
   body.innerHTML = noReply.map(q => {
-    const updated = q.updatedAt ? q.tsToDate(updatedAt) : null;
+    const updated = q.updatedAt ? tsToDate(q.updatedAt) : null;
     const days = daysSince(updated);
     return `<tr onclick="openEditQuote('${q.id}')">
       <td><strong>${clientName(q.klientId)}</strong></td>
@@ -3235,7 +3235,7 @@ function renderLost() {
   }
 
   body.innerHTML = lost.map(q => {
-    const date = q.updatedAt ? q.tsToDate(updatedAt) : '';
+    const date = q.updatedAt ? tsToDate(q.updatedAt) : '';
     return `<tr onclick="openEditQuote('${q.id}')">
       <td><strong>${clientName(q.klientId)}</strong></td>
       <td style="font-size:12px;color:var(--text-2);max-width:200px;overflow:hidden;text-overflow:ellipsis">${q.opis||'—'}</td>
@@ -3313,7 +3313,7 @@ function renderJedrzejView() {
   }
 
   list.innerHTML = myQuotes.map(q => {
-    const days = daysSince(q.data_jedrzej || (q.createdAt ? q.tsToDate(createdAt) : null));
+    const days = daysSince(q.data_jedrzej || (q.createdAt ? tsToDate(q.createdAt) : null));
     const urgentCls = days >= 5 ? 'days-urgent' : days >= 2 ? 'days-warn' : 'days-ok';
     return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;box-shadow:var(--shadow)">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
@@ -4305,7 +4305,7 @@ function renderWaitingAtJedrzej() {
     return;
   }
   el.innerHTML = waiting.map(q => {
-    const days = daysSince(q.data_jedrzej || (q.createdAt ? q.tsToDate(createdAt) : null));
+    const days = daysSince(q.data_jedrzej || (q.createdAt ? tsToDate(q.createdAt) : null));
     const urgentCls = days >= 3 ? 'days-urgent' : days >= 1 ? 'days-warn' : 'days-ok';
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px" onclick="openEditQuote('${q.id}')" style="cursor:pointer">
       <div>
@@ -4376,7 +4376,7 @@ async function loadClientHistoria(clientId) {
     }
     list.innerHTML = snap.docs.map(d => {
       const h = d.data();
-      const date = h.data || (h.createdAt ? h.tsToDate(createdAt) : '');
+      const date = h.data || (h.createdAt ? tsToDate(h.createdAt) : '');
       const icons = { telefon: '📞', mail: '✉', spotkanie: '🤝', followup: '🔄', inne: '📋' };
       const statusColors = { pozytywny: 'var(--green)', negatywny: 'var(--red)', odlozone: 'var(--orange)', brak_kontaktu: 'var(--text-3)' };
       return `<div style="padding:10px 12px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:6px;font-size:13px">
