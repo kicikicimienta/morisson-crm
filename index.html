@@ -1283,7 +1283,8 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
     </div>
   </div>
 
-  <div style="max-width:480px">
+  <div class="two-col">
+    <div>
       <div class="section-title">Szybkie zapytanie</div>
       <div class="table-card" style="padding:16px">
         <div class="form-group" style="margin-bottom:10px">
@@ -1298,17 +1299,18 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
           <label class="form-label">Link do zestawienia <span class="form-label-hint">(Google Drive, Dropbox)</span></label>
           <input type="text" class="form-control" id="quickLink" placeholder="https://drive.google.com/...">
         </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-primary" style="flex:1" onclick="quickSendToJedrzej()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Wyślij do Jędrzeja
-          </button>
-        </div>
-        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
-          <div class="section-title" style="margin-bottom:8px">Czeka u Jędrzeja</div>
-          <div id="waitingAtJedrzej"></div>
-        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="quickSendToJedrzej()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Wyślij do Jędrzeja
+        </button>
       </div>
+    </div>
+    <div>
+      <div class="section-title">Czeka u Jędrzeja</div>
+      <div class="table-card" style="padding:16px">
+        <div id="waitingAtJedrzej"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1454,7 +1456,7 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
   <div class="table-card">
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Klient</th><th>Opis</th><th>Powód przegranej</th><th>Wartość</th><th>Data</th></tr></thead>
+        <thead><tr><th>Klient</th><th>Opis</th><th>Powód przegranej</th><th>Wartość</th><th>Data</th><th></th></tr></thead>
         <tbody id="lostBody"></tbody>
       </table>
     </div>
@@ -1477,7 +1479,7 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
   <div class="table-card">
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Klient</th><th>Opis</th><th>Wartość</th><th>Typ klienta</th><th>Data wygrania</th></tr></thead>
+        <thead><tr><th>Klient</th><th>Opis</th><th>Wartość</th><th>Typ klienta</th><th>Data wygrania</th><th></th></tr></thead>
         <tbody id="wonBody"></tbody>
       </table>
     </div>
@@ -3236,6 +3238,12 @@ function renderWon() {
       <td style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--green)">${q.wartosc ? Number(q.wartosc).toLocaleString('pl')+' zł' : '—'}</td>
       <td>${client?.typ ? `<span class="source-badge">${client.typ}</span>` : '—'}</td>
       <td style="font-size:12px;color:var(--text-2)">${formatDatePL(date)}</td>
+      <td onclick="event.stopPropagation()">
+        <div style="display:flex;gap:4px">
+          <button class="btn-icon" onclick="openEditHistorical('${q.id}',event)" title="Edytuj"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="btn-icon btn-icon-danger" onclick="deleteQuoteById('${q.id}',event)" title="Usuń"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+        </div>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -3309,6 +3317,12 @@ function renderLost() {
       <td>${q.powod ? `<span class="badge badge-lost">${q.powod}</span>` : '<span class="text-muted">—</span>'}</td>
       <td style="font-family:'IBM Plex Mono',monospace;font-size:12px">${q.wartosc ? Number(q.wartosc).toLocaleString('pl')+' zł' : '—'}</td>
       <td style="font-size:12px;color:var(--text-2)">${formatDatePL(date)}</td>
+      <td onclick="event.stopPropagation()">
+        <div style="display:flex;gap:4px">
+          <button class="btn-icon" onclick="openEditHistorical('${q.id}',event)" title="Edytuj"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="btn-icon btn-icon-danger" onclick="deleteQuoteById('${q.id}',event)" title="Usuń"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+        </div>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -3625,6 +3639,7 @@ let quickHistoryEtap = 'wygrane';
 
 function openQuickHistory(etap) {
   quickHistoryEtap = etap;
+  window._editingHistoricalId = null;
   document.getElementById('quickHistoryTitle').textContent = etap === 'wygrane' ? 'Szybki wpis — Wygrana' : 'Szybki wpis — Przegrana';
   document.getElementById('qh_data').value = today();
   document.getElementById('qh_opis').value = '';
@@ -3637,6 +3652,26 @@ function openQuickHistory(etap) {
   document.getElementById('quickHistoryOverlay').classList.add('show');
 }
 
+function openEditHistorical(quoteId, e) {
+  e && e.stopPropagation();
+  const q = quotes.find(x => x.id === quoteId);
+  if (!q) return;
+  quickHistoryEtap = q.etap;
+  document.getElementById('quickHistoryTitle').textContent = q.etap === 'wygrane' ? 'Edytuj — Wygrana' : 'Edytuj — Przegrana';
+  const sel = document.getElementById('qh_klient');
+  sel.innerHTML = '<option value="">— wybierz klienta —</option>' + clients.map(c => `<option value="${c.id}" ${c.id===q.klientId?'selected':''}>${c.nazwa}</option>`).join('');
+  document.getElementById('qh_opis').value = q.opis || '';
+  document.getElementById('qh_wartosc').value = q.wartosc || '';
+  document.getElementById('qh_powodGroup').style.display = q.etap === 'przegrane' ? 'flex' : 'none';
+  document.getElementById('qh_powod').value = q.powod || '';
+  // Store date from createdAt
+  const d = q.createdAt ? tsToDate(q.createdAt) : today();
+  document.getElementById('qh_data').value = d;
+  // Store editing id
+  window._editingHistoricalId = quoteId;
+  document.getElementById('quickHistoryOverlay').classList.add('show');
+}
+
 async function saveQuickHistory() {
   const klientId = document.getElementById('qh_klient').value;
   const opis = document.getElementById('qh_opis').value.trim();
@@ -3644,25 +3679,30 @@ async function saveQuickHistory() {
   if (!klientId) { showToast('Wybierz klienta.', 'error'); return; }
   if (!opis) { showToast('Wpisz opis.', 'error'); return; }
   const quoteData = {
-    klientId,
-    opis,
+    klientId, opis,
     etap: quickHistoryEtap,
     wartosc: document.getElementById('qh_wartosc').value || '',
     powod: quickHistoryEtap === 'przegrane' ? document.getElementById('qh_powod').value : '',
-    priorytet: 'normalny',
-    notatka: '',
-    link: '',
-    data_jedrzej: '',
+    priorytet: 'normalny', notatka: '', link: '', data_jedrzej: '',
     historyczny: true,
-    createdAt: firebase.firestore.Timestamp.fromDate(new Date(data + 'T12:00:00')),
-    updatedAt: firebase.firestore.Timestamp.fromDate(new Date(data + 'T12:00:00')),
-    createdBy: currentUser.email,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     updatedBy: currentUser.email
   };
   closeModal('quickHistoryOverlay');
   try {
-    await db.collection('quotes').add(quoteData);
-    showToast(quickHistoryEtap === 'wygrane' ? '🎉 Wygrana dodana ✓' : 'Przegrana dodana ✓', 'success');
+    const editId = window._editingHistoricalId;
+    if (editId) {
+      await db.collection('quotes').doc(editId).update(quoteData);
+      window._editingHistoricalId = null;
+      showToast('Zaktualizowano ✓', 'success');
+    } else {
+      await db.collection('quotes').add({
+        ...quoteData,
+        createdAt: firebase.firestore.Timestamp.fromDate(new Date(data + 'T12:00:00')),
+        createdBy: currentUser.email
+      });
+      showToast(quickHistoryEtap === 'wygrane' ? '🎉 Wygrana dodana ✓' : 'Przegrana dodana ✓', 'success');
+    }
   } catch { showToast('Błąd zapisu.', 'error'); }
 }
 
