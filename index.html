@@ -1431,7 +1431,7 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
             <th style="min-width:60px;width:70px">Nr</th><th>Klient</th><th>Brakuje</th>
             <th>Zam.?</th><th>Szyby do</th><th>Termin</th>
             <th>Po term.</th><th>Wartość</th><th>✉ Mail</th><th>FV do</th><th>FV</th>
-            <th>Wpłata</th><th>Status</th><th>Uwagi</th><th></th>
+            <th>Wpłata</th><th>Status</th><th>Dostawa</th><th>Uwagi</th><th></th>
           </tr>
         </thead>
         <tbody id="zOrdersBody"></tbody>
@@ -2281,7 +2281,11 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
         </div>
         <div class="form-group form-full">
           <label class="form-label">Koordynacja dostawy <span class="form-label-hint">(data, godzina, kierowca, tel.)</span></label>
-          <input type="text" class="form-control" id="f_koordynacja" placeholder="np. Dostawa 15.05, godz. 9:00 / Kierowca: Jan Kowalski, 500 100 200">
+          <div style="display:flex;gap:8px">
+            <input type="date" class="form-control" id="f_koordynacja_data" style="flex:1">
+            <input type="time" class="form-control" id="f_koordynacja_czas" style="width:110px">
+          </div>
+          <input type="text" class="form-control" id="f_koordynacja" placeholder="Kierowca, tel, uwagi do dostawy" style="margin-top:6px">
         </div>
         <div class="form-group form-full">
           <label class="form-label">Uwagi</label>
@@ -4994,6 +4998,7 @@ function z_renderTable() {
       <td onclick="event.stopPropagation()">${z_checkBtn(o.faktura, 'faktura', o.id)}</td>
       <td onclick="event.stopPropagation()">${z_checkBtn(o.wplata, 'wplata', o.id)}</td>
       <td>${z_statusBadge(o.status)}</td>
+      <td style="font-size:11px;color:var(--text-2);white-space:nowrap">${o.koordynacja_data ? `<div style="font-weight:500;color:var(--text)">${formatDatePL(o.koordynacja_data)}${o.koordynacja_czas ? ' ' + o.koordynacja_czas : ''}</div>` : ''}${o.koordynacja ? `<div style="color:var(--text-3);font-size:10px">${o.koordynacja.slice(0,30)}${o.koordynacja.length>30?'…':''}</div>` : '—'}</td>
       <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;color:var(--text-2);font-size:12px">${o.uwagi || ''}</td>
       <td onclick="event.stopPropagation()">
         <div class="action-group">
@@ -5139,7 +5144,7 @@ function z_closeOrderOnBg(e) {
 }
 
 function z_clearForm() {
-  ['f_nr','f_klient','f_email','f_tel','f_dostawa_mat','f_termin','f_koordynacja','f_uwagi','f_szyby_auto','f_fv_auto','f_wartosc'].forEach(id => {
+  ['f_nr','f_klient','f_email','f_tel','f_dostawa_mat','f_termin','f_koordynacja','f_koordynacja_data','f_koordynacja_czas','f_uwagi','f_szyby_auto','f_fv_auto','f_wartosc'].forEach(id => {
     document.getElementById(id).value = '';
   });
   z_setBrakujace([]);
@@ -5155,6 +5160,8 @@ function z_fillForm(o) {
   document.getElementById('f_dostawa_mat').value = o.dostawa_mat || '';
   document.getElementById('f_termin').value = o.termin || '';
   document.getElementById('f_koordynacja').value = o.koordynacja || '';
+  document.getElementById('f_koordynacja_data').value = o.koordynacja_data || '';
+  document.getElementById('f_koordynacja_czas').value = o.koordynacja_czas || '';
   document.getElementById('f_status').value = o.status || 'Oczekuje na materiały';
   document.getElementById('f_uwagi').value = o.uwagi || '';
   document.getElementById('f_wartosc').value = o.wartosc || '';
@@ -5214,6 +5221,8 @@ async function z_saveOrder() {
     faktura: zToggleState.faktura || '✗',
     wplata: zToggleState.wplata || '✗',
     koordynacja: document.getElementById('f_koordynacja').value.trim(),
+    koordynacja_data: document.getElementById('f_koordynacja_data').value,
+    koordynacja_czas: document.getElementById('f_koordynacja_czas').value,
     status: document.getElementById('f_status').value,
     uwagi: document.getElementById('f_uwagi').value.trim(),
     wartosc: document.getElementById('f_wartosc').value || '',
