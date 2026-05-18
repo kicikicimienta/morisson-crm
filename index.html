@@ -247,10 +247,56 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .priority-low { color: var(--green); }
 
 @media (max-width: 768px) {
-  .main { padding: 16px; }
+  .main { padding: 12px; }
   .form-grid { grid-template-columns: 1fr; }
   .two-col { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
+
+  /* Header */
+  .header { padding: 0 12px; height: 52px; }
+  .logo-text { display: none; }
+  .logo-sub { display: none; }
+
+  /* Nav tabs - scrollable horizontal */
+  .nav-tabs { padding: 0 8px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab { padding: 0 10px; font-size: 11px; white-space: nowrap; flex-shrink: 0; }
+  .nav-tab svg { display: none; }
+
+  /* Stage cards - 2 per row on mobile */
+  #stageCards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* Tables - hide less important columns */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Modal - full screen on mobile */
+  .overlay { align-items: flex-end; padding: 0; }
+  .modal { border-radius: 16px 16px 0 0; max-height: 90vh; width: 100%; max-width: 100%; margin: 0; }
+  .modal-body { max-height: 65vh; overflow-y: auto; }
+
+  /* Toolbar */
+  .toolbar { flex-wrap: wrap; gap: 8px; }
+  .toolbar-left { width: 100%; }
+  .search-input { width: 100%; }
+
+  /* Buttons */
+  .btn { padding: 8px 14px; font-size: 13px; }
+  .btn-primary { min-height: 42px; }
+
+  /* Stage detail panel table - hide some columns */
+  #stageDetailPanel table th:nth-child(3),
+  #stageDetailPanel table td:nth-child(3) { display: none; }
+
+  /* Quick quote form */
+  #quickClient, #quickOpis, #quickLink { font-size: 16px; } /* prevents zoom on iOS */
+  .form-control { font-size: 16px; } /* prevents zoom on iOS */
+
+  /* Kanban / jedrzej cards */
+  #jedrzejList .btn { min-height: 40px; }
+
+  /* Reminders */
+  .reminder-item { flex-wrap: wrap; }
+  .reminder-action { width: 100%; text-align: right; }
 }
 
 :root {
