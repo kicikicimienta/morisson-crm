@@ -1484,7 +1484,7 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
             <option value="Nowa">Nowa</option>
             <option value="W trakcie">W trakcie</option>
             <option value="Oczekuje na części">Oczekuje na części</option>
-            <option value="Rozwiązana">Rozwiązana</option>
+            <option value="Zakończona">Zakończona</option>
             <option value="Odrzucona">Odrzucona</option>
           </select>
         </div>
@@ -3753,7 +3753,7 @@ function renderReklamacje() {
   if (statsEl) {
     const nowe = reklamacje.filter(r => r.status === 'Nowa').length;
     const wTrakcie = reklamacje.filter(r => r.status === 'W trakcie' || r.status === 'Oczekuje na części').length;
-    const rozwiazane = reklamacje.filter(r => r.status === 'Rozwiązana').length;
+    const rozwiazane = reklamacje.filter(r => r.status === 'Zakończona').length;
     statsEl.innerHTML = `
       <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:10px 16px;min-width:100px">
         <div style="font-weight:700;font-size:20px;font-family:'Outfit',sans-serif;color:var(--red)">${nowe}</div>
@@ -3765,7 +3765,7 @@ function renderReklamacje() {
       </div>
       <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--green);border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:10px 16px;min-width:100px">
         <div style="font-weight:700;font-size:20px;font-family:'Outfit',sans-serif;color:var(--green)">${rozwiazane}</div>
-        <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Rozwiązane</div>
+        <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Zakończone</div>
       </div>`;
   }
 
@@ -3774,11 +3774,11 @@ function renderReklamacje() {
     return;
   }
 
-  const statusColors = { 'Nowa': 'var(--red)', 'W trakcie': 'var(--orange)', 'Oczekuje na części': 'var(--orange)', 'Rozwiązana': 'var(--green)', 'Odrzucona': 'var(--text-3)' };
+  const statusColors = { 'Nowa': 'var(--red)', 'W trakcie': 'var(--orange)', 'Oczekuje na części': 'var(--orange)', 'Zakończona': 'var(--green)', 'Odrzucona': 'var(--text-3)' };
   body.innerHTML = reklamacje.map(r => {
     const date = r.createdAt ? tsToDate(r.createdAt) : '';
     const color = statusColors[r.status] || 'var(--text-2)';
-    const overdue = r.termin && r.status !== 'Rozwiązana' && r.termin < today();
+    const overdue = r.termin && r.status !== 'Zakończona' && r.termin < today();
     return `<tr onclick="openEditReklamacja('${r.id}')">
       <td><strong>${r.klientNazwa || '—'}</strong></td>
       <td style="font-family:'IBM Plex Mono',monospace;font-size:12px">${r.zamowienieNr || '—'}</td>
