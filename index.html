@@ -1252,6 +1252,10 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
     Zamówienia
   </button>
+  <button class="nav-tab" onclick="switchPage('reklamacje')" id="tab-reklamacje">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Reklamacje
+  </button>
 </nav>
 
 <div class="main">
@@ -1425,6 +1429,98 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
 
 
 
+
+<!-- ═══ REKLAMACJE ═══ -->
+<div class="page" id="page-reklamacje">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div>
+      <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:22px">Reklamacje</div>
+      <div style="font-size:13px;color:var(--text-2);margin-top:3px">Lista zgłoszonych reklamacji</div>
+    </div>
+    <button class="btn btn-primary" onclick="openAddReklamacja()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nowa reklamacja
+    </button>
+  </div>
+  <div id="reklamacjeStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px"></div>
+  <div class="table-card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Klient</th><th>Nr zamówienia</th><th>Opis problemu</th><th>Status</th><th>Data zgłoszenia</th><th>Termin rozwiązania</th><th></th></tr></thead>
+        <tbody id="reklamacjeBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: REKLAMACJA ═══ -->
+<div class="overlay" id="reklamacjaOverlay" onclick="if(event.target===this)closeModal('reklamacjaOverlay')">
+  <div class="modal" id="reklamacjaModal">
+    <div class="modal-header">
+      <div><div class="modal-title" id="reklamacjaTitle">Nowa reklamacja</div></div>
+      <button class="close-btn" onclick="closeModal('reklamacjaOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Klient</label>
+          <select class="form-control form-select" id="rek_klient" onchange="populateReklamacjaOrders()"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nr zamówienia</label>
+          <select class="form-control form-select" id="rek_zamowienie"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data zgłoszenia</label>
+          <input type="date" class="form-control" id="rek_data">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Termin rozwiązania</label>
+          <input type="date" class="form-control" id="rek_termin">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-control form-select" id="rek_status">
+            <option value="Nowa">Nowa</option>
+            <option value="W trakcie">W trakcie</option>
+            <option value="Oczekuje na części">Oczekuje na części</option>
+            <option value="Rozwiązana">Rozwiązana</option>
+            <option value="Odrzucona">Odrzucona</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Rodzaj usterki</label>
+          <select class="form-control form-select" id="rek_rodzaj">
+            <option value="">— wybierz —</option>
+            <option value="Uszkodzenie mechaniczne">Uszkodzenie mechaniczne</option>
+            <option value="Wada montażu">Wada montażu</option>
+            <option value="Wada produkcyjna">Wada produkcyjna</option>
+            <option value="Nieszczelność">Nieszczelność</option>
+            <option value="Problem z okuciami">Problem z okuciami</option>
+            <option value="Uszkodzenie szyby">Uszkodzenie szyby</option>
+            <option value="Inne">Inne</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Opis problemu</label>
+          <textarea class="form-control" id="rek_opis" placeholder="Opisz dokładnie problem zgłoszony przez klienta…" style="min-height:100px"></textarea>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Działania podjęte <span class="form-label-hint">(opcjonalnie)</span></label>
+          <textarea class="form-control" id="rek_dzialania" placeholder="Co zostało zrobione, ustalenia z klientem…" style="min-height:70px"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-icon btn-icon-danger" id="reklamacjaDeleteBtn" style="display:none" onclick="deleteReklamacja()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" onclick="closeModal('reklamacjaOverlay')">Anuluj</button>
+      <button class="btn btn-primary" onclick="saveReklamacja()">Zapisz</button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══ WIDOK JĘDRZEJA ═══ -->
 <div class="page" id="page-jedrzej">
@@ -3099,6 +3195,12 @@ function renderQuotes() {
     const matchS = !filterStage || x.etap === filterStage;
     return matchQ && matchS;
   });
+  // Sort: oldest first (by createdAt)
+  filtered.sort((a, b) => {
+    const da = a.createdAt ? tsToDate(a.createdAt) : '9999';
+    const db_ = b.createdAt ? tsToDate(b.createdAt) : '9999';
+    return da < db_ ? -1 : da > db_ ? 1 : 0;
+  });
   if (!filtered.length) {
     body.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">📄</div><div class="empty-state-title">Brak zapytań</div></div></td></tr>`;
     return;
@@ -3626,6 +3728,163 @@ function zadanieCard(z, t, compact) {
     <button class="btn-icon" onclick="openEditZadanie('${z.id}')" title="Edytuj"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
     <button class="btn-icon btn-icon-danger" onclick="quickDeleteZadanie('${z.id}',event)" title="Usuń"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
   </div>`;
+}
+
+// ─── REKLAMACJE ───
+let reklamacje = [];
+let editingReklamacjaId = null;
+let reklamacjeUnsub = null;
+
+function startReklamacjeListening() {
+  if (reklamacjeUnsub) return;
+  reklamacjeUnsub = db.collection('reklamacje').orderBy('createdAt','desc').onSnapshot(snap => {
+    reklamacje = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderReklamacje();
+  });
+}
+
+function renderReklamacje() {
+  const body = document.getElementById('reklamacjeBody');
+  const statsEl = document.getElementById('reklamacjeStats');
+  if (!body) return;
+
+  if (statsEl) {
+    const nowe = reklamacje.filter(r => r.status === 'Nowa').length;
+    const wTrakcie = reklamacje.filter(r => r.status === 'W trakcie' || r.status === 'Oczekuje na części').length;
+    const rozwiazane = reklamacje.filter(r => r.status === 'Rozwiązana').length;
+    statsEl.innerHTML = `
+      <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:10px 16px;min-width:100px">
+        <div style="font-weight:700;font-size:20px;font-family:'Outfit',sans-serif;color:var(--red)">${nowe}</div>
+        <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Nowe</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--orange);border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:10px 16px;min-width:100px">
+        <div style="font-weight:700;font-size:20px;font-family:'Outfit',sans-serif;color:var(--orange)">${wTrakcie}</div>
+        <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">W trakcie</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--green);border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:10px 16px;min-width:100px">
+        <div style="font-weight:700;font-size:20px;font-family:'Outfit',sans-serif;color:var(--green)">${rozwiazane}</div>
+        <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Rozwiązane</div>
+      </div>`;
+  }
+
+  if (!reklamacje.length) {
+    body.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">✅</div><div class="empty-state-title">Brak reklamacji</div></div></td></tr>`;
+    return;
+  }
+
+  const statusColors = { 'Nowa': 'var(--red)', 'W trakcie': 'var(--orange)', 'Oczekuje na części': 'var(--orange)', 'Rozwiązana': 'var(--green)', 'Odrzucona': 'var(--text-3)' };
+  body.innerHTML = reklamacje.map(r => {
+    const date = r.createdAt ? tsToDate(r.createdAt) : '';
+    const color = statusColors[r.status] || 'var(--text-2)';
+    const overdue = r.termin && r.status !== 'Rozwiązana' && r.termin < today();
+    return `<tr onclick="openEditReklamacja('${r.id}')">
+      <td><strong>${r.klientNazwa || '—'}</strong></td>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:12px">${r.zamowienieNr || '—'}</td>
+      <td style="font-size:12px;color:var(--text-2);max-width:220px;overflow:hidden;text-overflow:ellipsis">${r.opis||'—'}<br><span style="font-size:11px;color:var(--text-3)">${r.rodzaj||''}</span></td>
+      <td><span style="font-size:12px;font-weight:600;color:${color}">${r.status||'—'}</span></td>
+      <td style="font-size:12px;color:var(--text-2)">${formatDatePL(date)}</td>
+      <td style="font-size:12px;${overdue ? 'color:var(--red);font-weight:600' : 'color:var(--text-2)'}">${r.termin ? formatDatePL(r.termin) : '—'}${overdue ? ' ⚠' : ''}</td>
+      <td onclick="event.stopPropagation()">
+        <div style="display:flex;gap:4px">
+          <button class="btn-icon" onclick="openEditReklamacja('${r.id}')" title="Edytuj"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="btn-icon btn-icon-danger" onclick="deleteReklamacjaById('${r.id}',event)" title="Usuń"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddReklamacja() {
+  editingReklamacjaId = null;
+  document.getElementById('reklamacjaTitle').textContent = 'Nowa reklamacja';
+  document.getElementById('reklamacjaDeleteBtn').style.display = 'none';
+  ['rek_opis','rek_dzialania'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('rek_data').value = today();
+  document.getElementById('rek_termin').value = '';
+  document.getElementById('rek_status').value = 'Nowa';
+  document.getElementById('rek_rodzaj').value = '';
+  const sel = document.getElementById('rek_klient');
+  sel.innerHTML = '<option value="">— wybierz klienta —</option>' + clients.map(c => `<option value="${c.id}">${c.nazwa}</option>`).join('');
+  document.getElementById('rek_zamowienie').innerHTML = '<option value="">— wybierz klienta —</option>';
+  document.getElementById('reklamacjaOverlay').classList.add('show');
+}
+
+function populateReklamacjaOrders() {
+  const klientId = document.getElementById('rek_klient').value;
+  const sel = document.getElementById('rek_zamowienie');
+  if (!klientId) { sel.innerHTML = '<option value="">— wybierz klienta —</option>'; return; }
+  const klient = clients.find(c => c.id === klientId);
+  const klientNazwa = klient?.nazwa || '';
+  const orders = zOrders.filter(o => o.klient && o.klient.toLowerCase().includes(klientNazwa.toLowerCase()));
+  if (!orders.length) {
+    sel.innerHTML = '<option value="">— brak zamówień —</option>';
+  } else {
+    sel.innerHTML = '<option value="">— wybierz zamówienie —</option>' + orders.map(o => `<option value="${o.nr}">${o.nr}${o.termin ? ' (dostawa: ' + formatDatePL(o.termin) + ')' : ''}</option>`).join('');
+  }
+}
+
+function openEditReklamacja(id) {
+  const r = reklamacje.find(x => x.id === id);
+  if (!r) return;
+  editingReklamacjaId = id;
+  document.getElementById('reklamacjaTitle').textContent = 'Edytuj reklamację';
+  document.getElementById('reklamacjaDeleteBtn').style.display = 'inline-flex';
+  const sel = document.getElementById('rek_klient');
+  sel.innerHTML = '<option value="">— wybierz klienta —</option>' + clients.map(c => `<option value="${c.id}" ${c.id===r.klientId?'selected':''}>${c.nazwa}</option>`).join('');
+  populateReklamacjaOrders();
+  setTimeout(() => { document.getElementById('rek_zamowienie').value = r.zamowienieNr || ''; }, 100);
+  document.getElementById('rek_data').value = r.data || today();
+  document.getElementById('rek_termin').value = r.termin || '';
+  document.getElementById('rek_status').value = r.status || 'Nowa';
+  document.getElementById('rek_rodzaj').value = r.rodzaj || '';
+  document.getElementById('rek_opis').value = r.opis || '';
+  document.getElementById('rek_dzialania').value = r.dzialania || '';
+  document.getElementById('reklamacjaOverlay').classList.add('show');
+}
+
+async function saveReklamacja() {
+  const klientId = document.getElementById('rek_klient').value;
+  const opis = document.getElementById('rek_opis').value.trim();
+  if (!klientId) { showToast('Wybierz klienta.', 'error'); return; }
+  const klient = clients.find(c => c.id === klientId);
+  const data = {
+    klientId,
+    klientNazwa: klient?.nazwa || '',
+    zamowienieNr: document.getElementById('rek_zamowienie').value,
+    data: document.getElementById('rek_data').value,
+    termin: document.getElementById('rek_termin').value,
+    status: document.getElementById('rek_status').value,
+    rodzaj: document.getElementById('rek_rodzaj').value,
+    opis,
+    dzialania: document.getElementById('rek_dzialania').value.trim(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedBy: currentUser.email
+  };
+  closeModal('reklamacjaOverlay');
+  try {
+    if (editingReklamacjaId) {
+      await db.collection('reklamacje').doc(editingReklamacjaId).update(data);
+      showToast('Zapisano ✓', 'success');
+    } else {
+      await db.collection('reklamacje').add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp(), createdBy: currentUser.email });
+      showToast('Reklamacja dodana ✓', 'success');
+    }
+  } catch { showToast('Błąd zapisu.', 'error'); }
+}
+
+async function deleteReklamacja() {
+  if (!editingReklamacjaId) return;
+  if (!confirm('Usunąć tę reklamację?')) return;
+  closeModal('reklamacjaOverlay');
+  try { await db.collection('reklamacje').doc(editingReklamacjaId).delete(); showToast('Usunięto'); }
+  catch { showToast('Błąd.', 'error'); }
+}
+
+async function deleteReklamacjaById(id, e) {
+  e && e.stopPropagation();
+  if (!confirm('Usunąć tę reklamację?')) return;
+  try { await db.collection('reklamacje').doc(id).delete(); showToast('Usunięto'); }
+  catch { showToast('Błąd.', 'error'); }
 }
 
 // ─── SZYBKI WPIS HISTORYCZNY ───
@@ -4445,15 +4704,17 @@ async function quickSendToJedrzej() {
 function renderWaitingAtJedrzej() {
   const el = document.getElementById('waitingAtJedrzej');
   if (!el) return;
-  const waiting = quotes.filter(q => q.etap === 'u_jedrzeja');
+  const waiting = quotes.filter(q => q.etap === 'u_jedrzeja')
+    .map(q => ({ ...q, _days: daysSince(q.data_jedrzej || (q.createdAt ? tsToDate(q.createdAt) : null)) }))
+    .sort((a, b) => (b._days || 0) - (a._days || 0)); // najstarsze pierwsze
   if (!waiting.length) {
     el.innerHTML = '<div class="text-muted">Nic nie czeka u Jędrzeja.</div>';
     return;
   }
   el.innerHTML = waiting.map(q => {
-    const days = daysSince(q.data_jedrzej || (q.createdAt ? tsToDate(q.createdAt) : null));
+    const days = q._days;
     const urgentCls = days >= 3 ? 'days-urgent' : days >= 1 ? 'days-warn' : 'days-ok';
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px" onclick="openEditQuote('${q.id}')" style="cursor:pointer">
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer" onclick="openEditQuote('${q.id}')">
       <div>
         <strong>${clientName(q.klientId)}</strong>
         <div style="font-size:11px;color:var(--text-3);margin-top:1px">${q.opis||''}</div>
@@ -4473,6 +4734,7 @@ function switchPage(page) {
   if (page === 'arkusz') z_renderTable();
   if (page === 'prospekty') { startProspektyListening(); seedProspekty(); }
   if (page === 'zadania') startZadaniaListening();
+  if (page === 'reklamacje') startReklamacjeListening();
 }
 
 // ─── MODALS ───
