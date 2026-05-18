@@ -1356,7 +1356,7 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
         <option value="">Wszystkie etapy</option>
         <option value="nowe">Nowe</option>
         <option value="u_jedrzeja">U Jędrzeja</option>
-        <option value="wyslane">Wysłane</option>
+        <option value="wyslane">Wysłane do klienta</option>
         <option value="czeka">Czeka na decyzję</option>
         <option value="wygrane">Wygrane</option>
         <option value="przegrane">Przegrane</option>
@@ -2585,7 +2585,7 @@ let unsubs = [];
 const STAGES = {
   nowe: { label: 'Nowe', badge: 'badge-new' },
   u_jedrzeja: { label: 'U Jędrzeja', badge: 'badge-jedrzej' },
-  wyslane: { label: 'Wysłane', badge: 'badge-sent' },
+  wyslane: { label: 'Wysłane do klienta', badge: 'badge-sent' },
   czeka: { label: 'Czeka na decyzję', badge: 'badge-nego' },
   wygrane: { label: 'Wygrane', badge: 'badge-won' },
   przegrane: { label: 'Przegrane', badge: 'badge-lost' },
@@ -2730,7 +2730,7 @@ function renderMiniKanbanSummary() {
   if (!el) return;
   const stageOrder = ['nowe','u_jedrzeja','wyslane','czeka','wygrane','przegrane'];
   const colors = { nowe:'#1d4ed8', u_jedrzeja:'#ca8a04', wyslane:'#0369a1', czeka:'#7c3aed', wygrane:'#15803d', przegrane:'#dc2626' };
-  const labels = { nowe:'Nowe', u_jedrzeja:'Jędrzej', wyslane:'Wysłane', czeka:'Czeka', wygrane:'Wygrane', przegrane:'Przegrane' };
+  const labels = { nowe:'Nowe', u_jedrzeja:'Jędrzej', wyslane:'Wysłane do klienta', czeka:'Czeka', wygrane:'Wygrane', przegrane:'Przegrane' };
   el.innerHTML = stageOrder.map(s => {
     const count = quotes.filter(q => q.etap === s).length;
     if (!count) return '';
@@ -2742,7 +2742,7 @@ function renderMiniKanban() {
   const board = document.getElementById('miniKanbanBoard');
   if (!board) return;
   const stageOrder = ['nowe','u_jedrzeja','wyslane','czeka','wygrane','przegrane'];
-  const labels = { nowe:'Nowe', u_jedrzeja:'U Jędrzeja', wyslane:'Wysłane', czeka:'Czeka na decyzję', wygrane:'Wygrane ✓', przegrane:'Przegrane ✗' };
+  const labels = { nowe:'Nowe', u_jedrzeja:'U Jędrzeja', wyslane:'Wysłane do klienta', czeka:'Czeka na decyzję', wygrane:'Wygrane ✓', przegrane:'Przegrane ✗' };
   const colors = { nowe:'#1d4ed8', u_jedrzeja:'#ca8a04', wyslane:'#0369a1', czeka:'#7c3aed', wygrane:'#15803d', przegrane:'#dc2626' };
   board.innerHTML = stageOrder.map(stage => {
     const cards = quotes.filter(q => q.etap === stage);
@@ -2761,7 +2761,7 @@ function renderDashKanban() {
   const board = document.getElementById('dashKanbanBoard');
   if (!board) return;
   const stageOrder = ['nowe','u_jedrzeja','wyslane','czeka','wygrane','przegrane'];
-  const labels = { nowe:'Nowe', u_jedrzeja:'U Jędrzeja', wyslane:'Wysłane', czeka:'Czeka na decyzję', wygrane:'Wygrane', przegrane:'Przegrane' };
+  const labels = { nowe:'Nowe', u_jedrzeja:'U Jędrzeja', wyslane:'Wysłane do klienta', czeka:'Czeka na decyzję', wygrane:'Wygrane', przegrane:'Przegrane' };
   const colors = { nowe:'#1d4ed8', u_jedrzeja:'#ca8a04', wyslane:'#0369a1', czeka:'#7c3aed', wygrane:'#16a34a', przegrane:'#dc2626' };
 
   board.innerHTML = stageOrder.map(stage => {
@@ -2789,19 +2789,33 @@ function renderStageCards() {
   const stages = [
     { key: 'nowe', label: 'Nowe', color: '#1d4ed8' },
     { key: 'u_jedrzeja', label: 'U Jędrzeja', color: '#ca8a04' },
-    { key: 'wyslane', label: 'Wysłane', color: '#0369a1' },
+    { key: 'wyslane', label: 'Wysłane do klienta', color: '#0369a1' },
     { key: 'czeka', label: 'Czeka na decyzję', color: '#7c3aed' },
     { key: 'wygrane', label: 'Wygrane', color: '#16a34a' },
     { key: 'przegrane', label: 'Przegrane', color: '#dc2626' },
   ];
   el.innerHTML = stages.map(s => {
-    const count = quotes.filter(q => q.etap === s.key).length;
+    const stageQuotes = quotes.filter(q => q.etap === s.key);
+    const count = stageQuotes.length;
     const isActive = activeStage === s.key;
+
+    // Extra info for U Jędrzeja - show oldest waiting
+    let extraInfo = '';
+    if (s.key === 'u_jedrzeja' && count > 0) {
+      const days = stageQuotes.map(q => daysSince(q.data_jedrzej || (q.createdAt ? tsToDate(q.createdAt) : null))).filter(d => d !== null);
+      const oldest = days.length ? Math.max(...days) : null;
+      if (oldest !== null) {
+        const cls = oldest >= 5 ? 'days-urgent' : oldest >= 2 ? 'days-warn' : 'days-ok';
+        extraInfo = `<div style="font-size:11px;margin-top:4px"><span class="${cls}">najstarsze ${oldest} dni</span></div>`;
+      }
+    }
+
     return `<div onclick="toggleStageDetail('${s.key}','${s.label}','${s.color}')"
       style="flex:1;min-width:130px;background:var(--surface);border:1px solid ${isActive ? s.color : 'var(--border)'};border-top:3px solid ${s.color};border-radius:0 0 var(--radius) var(--radius);padding:14px 16px;cursor:pointer;transition:all 0.15s;box-shadow:${isActive ? '0 4px 12px ' + s.color + '30' : 'var(--shadow)'}">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:${s.color};margin-bottom:8px">${s.label}</div>
       <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:28px;color:${count > 0 ? 'var(--text)' : 'var(--text-3)'};line-height:1">${count}</div>
       <div style="font-size:11px;color:var(--text-3);margin-top:4px">${count === 1 ? 'zapytanie' : count < 5 ? 'zapytania' : 'zapytań'}</div>
+      ${extraInfo}
     </div>`;
   }).join('');
 }
