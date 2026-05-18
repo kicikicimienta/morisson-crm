@@ -1283,25 +1283,7 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
     </div>
   </div>
 
-  <div class="two-col">
-    <div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div class="section-title" style="margin-bottom:0">Ostatnie aktywne zapytania</div>
-        <button id="deleteDashSelectedBtn" style="display:none;background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;display:none;align-items:center;gap:4px" onclick="deleteDashSelected()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
-          Usuń zaznaczone (<span id="dashSelectedCount">0</span>)
-        </button>
-      </div>
-      <div class="table-card">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th style="width:36px"><input type="checkbox" id="selectAllDashQuotes" onchange="toggleSelectAllDashQuotes(this)" style="cursor:pointer;accent-color:var(--accent)"></th><th>Klient</th><th>Opis</th><th>Etap</th><th>Czeka</th><th></th></tr></thead>
-            <tbody id="dashQuotesBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-    <div>
+  <div style="max-width:480px">
       <div class="section-title">Szybkie zapytanie</div>
       <div class="table-card" style="padding:16px">
         <div class="form-group" style="margin-bottom:10px">
@@ -1327,7 +1309,6 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
           <div id="waitingAtJedrzej"></div>
         </div>
       </div>
-    </div>
   </div>
 </div>
 
@@ -1464,6 +1445,10 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
       <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:22px">Przegrane zapytania</div>
       <div style="font-size:13px;color:var(--text-2);margin-top:3px">Analiza powodów i historia</div>
     </div>
+    <button class="btn btn-primary" onclick="openQuickHistory('przegrane')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Szybki wpis historyczny
+    </button>
   </div>
   <div id="lostStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px"></div>
   <div class="table-card">
@@ -1483,6 +1468,10 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
       <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:22px">Wygrane zapytania</div>
       <div style="font-size:13px;color:var(--text-2);margin-top:3px">Historia zamkniętych sprzedaży</div>
     </div>
+    <button class="btn btn-primary" onclick="openQuickHistory('wygrane')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Szybki wpis historyczny
+    </button>
   </div>
   <div id="wonStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px"></div>
   <div class="table-card">
@@ -1928,6 +1917,55 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
 
 
 
+<!-- ═══ MODAL: SZYBKI WPIS HISTORYCZNY ═══ -->
+<div class="overlay" id="quickHistoryOverlay" onclick="if(event.target===this)closeModal('quickHistoryOverlay')">
+  <div class="modal" id="quickHistoryModal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="quickHistoryTitle">Szybki wpis historyczny</div>
+        <div class="modal-subtitle">Wprowadź dane bez tworzenia pełnego zapytania</div>
+      </div>
+      <button class="close-btn" onclick="closeModal('quickHistoryOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Klient</label>
+          <select class="form-control form-select" id="qh_klient"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data</label>
+          <input type="date" class="form-control" id="qh_data">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Opis (temat zapytania)</label>
+          <input type="text" class="form-control" id="qh_opis" placeholder="np. 8 okien + drzwi HST, ul. Kwiatowa 5">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Wartość szacunkowa (zł)</label>
+          <input type="number" class="form-control" id="qh_wartosc" placeholder="0">
+        </div>
+        <div class="form-group" id="qh_powodGroup" style="display:none">
+          <label class="form-label">Powód przegranej</label>
+          <select class="form-control form-select" id="qh_powod">
+            <option value="">— wybierz —</option>
+            <option value="Cena za wysoka">Cena za wysoka</option>
+            <option value="Konkurencja">Konkurencja wygrała</option>
+            <option value="Klient zrezygnował">Klient zrezygnował</option>
+            <option value="Brak kontaktu">Brak kontaktu</option>
+            <option value="Inny">Inny</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('quickHistoryOverlay')">Anuluj</button>
+      <button class="btn btn-primary" onclick="saveQuickHistory()">Zapisz</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: SZYBKI WPIS HISTORYCZNY ═══ END -->
 <!-- ═══ MODAL: WYNIK ROZMOWY ═══ -->
 <div class="overlay" id="wynikOverlay" onclick="if(event.target===this)closeModal('wynikOverlay')">
   <div class="modal" id="wynikModal">
@@ -2898,16 +2936,6 @@ function renderDashboard() {
     : 0;
 
   document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card stat-card-accent">
-      <div class="stat-card-label">Aktywne zapytania</div>
-      <div class="stat-card-value">${activeQuotes.length}</div>
-      <div class="stat-card-sub">${atJedrzej.length} czeka u Jędrzeja</div>
-    </div>
-    <div class="stat-card stat-card-blue">
-      <div class="stat-card-label">Klienci w bazie</div>
-      <div class="stat-card-value">${clients.length}</div>
-      <div class="stat-card-sub">łącznie w systemie</div>
-    </div>
     <div class="stat-card stat-card-green">
       <div class="stat-card-label">Wyniki</div>
       <div style="display:flex;align-items:center;gap:16px;margin:8px 0">
@@ -3590,6 +3618,52 @@ function zadanieCard(z, t, compact) {
     <button class="btn-icon" onclick="openEditZadanie('${z.id}')" title="Edytuj"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
     <button class="btn-icon btn-icon-danger" onclick="quickDeleteZadanie('${z.id}',event)" title="Usuń"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
   </div>`;
+}
+
+// ─── SZYBKI WPIS HISTORYCZNY ───
+let quickHistoryEtap = 'wygrane';
+
+function openQuickHistory(etap) {
+  quickHistoryEtap = etap;
+  document.getElementById('quickHistoryTitle').textContent = etap === 'wygrane' ? 'Szybki wpis — Wygrana' : 'Szybki wpis — Przegrana';
+  document.getElementById('qh_data').value = today();
+  document.getElementById('qh_opis').value = '';
+  document.getElementById('qh_wartosc').value = '';
+  document.getElementById('qh_powod').value = '';
+  document.getElementById('qh_powodGroup').style.display = etap === 'przegrane' ? 'flex' : 'none';
+  // Populate clients
+  const sel = document.getElementById('qh_klient');
+  sel.innerHTML = '<option value="">— wybierz klienta —</option>' + clients.map(c => `<option value="${c.id}">${c.nazwa}</option>`).join('');
+  document.getElementById('quickHistoryOverlay').classList.add('show');
+}
+
+async function saveQuickHistory() {
+  const klientId = document.getElementById('qh_klient').value;
+  const opis = document.getElementById('qh_opis').value.trim();
+  const data = document.getElementById('qh_data').value;
+  if (!klientId) { showToast('Wybierz klienta.', 'error'); return; }
+  if (!opis) { showToast('Wpisz opis.', 'error'); return; }
+  const quoteData = {
+    klientId,
+    opis,
+    etap: quickHistoryEtap,
+    wartosc: document.getElementById('qh_wartosc').value || '',
+    powod: quickHistoryEtap === 'przegrane' ? document.getElementById('qh_powod').value : '',
+    priorytet: 'normalny',
+    notatka: '',
+    link: '',
+    data_jedrzej: '',
+    historyczny: true,
+    createdAt: firebase.firestore.Timestamp.fromDate(new Date(data + 'T12:00:00')),
+    updatedAt: firebase.firestore.Timestamp.fromDate(new Date(data + 'T12:00:00')),
+    createdBy: currentUser.email,
+    updatedBy: currentUser.email
+  };
+  closeModal('quickHistoryOverlay');
+  try {
+    await db.collection('quotes').add(quoteData);
+    showToast(quickHistoryEtap === 'wygrane' ? '🎉 Wygrana dodana ✓' : 'Przegrana dodana ✓', 'success');
+  } catch { showToast('Błąd zapisu.', 'error'); }
 }
 
 // ─── WYNIK ROZMOWY ───
