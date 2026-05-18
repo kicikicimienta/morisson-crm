@@ -1939,16 +1939,12 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
           <label class="form-label">Data</label>
           <input type="date" class="form-control" id="qh_data">
         </div>
-        <div class="form-group form-full">
-          <label class="form-label">Opis (temat zapytania)</label>
-          <input type="text" class="form-control" id="qh_opis" placeholder="np. 8 okien + drzwi HST, ul. Kwiatowa 5">
-        </div>
         <div class="form-group">
-          <label class="form-label">Wartość szacunkowa (zł)</label>
+          <label class="form-label">Wartość netto (zł)</label>
           <input type="number" class="form-control" id="qh_wartosc" placeholder="0">
         </div>
         <div class="form-group" id="qh_powodGroup" style="display:none">
-          <label class="form-label">Powód przegranej</label>
+          <label class="form-label">Powód przegranej <span class="form-label-hint">(opcjonalnie)</span></label>
           <select class="form-control form-select" id="qh_powod">
             <option value="">— wybierz —</option>
             <option value="Cena za wysoka">Cena za wysoka</option>
@@ -1957,6 +1953,10 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
             <option value="Brak kontaktu">Brak kontaktu</option>
             <option value="Inny">Inny</option>
           </select>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Opis <span class="form-label-hint">(opcjonalnie)</span></label>
+          <input type="text" class="form-control" id="qh_opis" placeholder="np. okna + drzwi">
         </div>
       </div>
     </div>
@@ -2726,7 +2726,6 @@ function renderAll() {
   renderWon();
   renderStageCards();
   if (activeStage) toggleStageDetail(activeStage, '', '');
-  if (isDominik()) renderDominikanReminders();
 }
 
 // ─── UTILS ───
@@ -2964,14 +2963,8 @@ function renderDashboard() {
     </div>
   `;
 
-  // Reminders
+  // Reminders — only show no-contact alerts (Jędrzej is shown in panel on right)
   const reminders = [];
-  atJedrzej.forEach(q => {
-    const days = daysSince(q.data_jedrzej);
-    if (days !== null && days >= 2) {
-      reminders.push({ urgent: days >= 5, text: `<strong>${clientName(q.klientId)}</strong> — wycena u Jędrzeja od ${days} dni`, qId: q.id });
-    }
-  });
   const noContactClients = quotes.filter(q => q.etap === 'wyslane').filter(q => {
     const days = daysSince(q.updatedAt ? tsToDate(q.updatedAt) : null);
     return days !== null && days >= 3;
@@ -2982,9 +2975,9 @@ function renderDashboard() {
 
   const container = document.getElementById('remindersContainer');
   if (reminders.length) {
-    container.innerHTML = `<div class="reminder-list">${reminders.map(r => `
+    container.innerHTML = `<div class="reminder-list" style="margin-bottom:16px">${reminders.map(r => `
       <div class="reminder-item ${r.urgent ? 'urgent' : ''}">
-        <div class="reminder-icon">${r.urgent ? '🔴' : '🟡'}</div>
+        <div class="reminder-icon">🟡</div>
         <div class="reminder-text">${r.text}</div>
         <div class="reminder-action" onclick="openEditQuote('${r.qId}')">Otwórz →</div>
       </div>`).join('')}</div>`;
@@ -3101,7 +3094,7 @@ function renderQuotes() {
   const filterStage = (document.getElementById('quoteFilter')||{}).value||'';
   const body = document.getElementById('quotesBody');
   if (!body) return;
-  let filtered = quotes.filter(x => {
+  let filtered = quotes.filter(x => !x.historyczny).filter(x => {
     const matchQ = !ql || (x.opis||'').toLowerCase().includes(ql) || clientName(x.klientId).toLowerCase().includes(ql);
     const matchS = !filterStage || x.etap === filterStage;
     return matchQ && matchS;
@@ -3678,7 +3671,6 @@ async function saveQuickHistory() {
   const opis = document.getElementById('qh_opis').value.trim();
   const data = document.getElementById('qh_data').value;
   if (!klientId) { showToast('Wybierz klienta.', 'error'); return; }
-  if (!opis) { showToast('Wpisz opis.', 'error'); return; }
   const quoteData = {
     klientId, opis,
     etap: quickHistoryEtap,
