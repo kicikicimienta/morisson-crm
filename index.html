@@ -3478,7 +3478,9 @@ function renderJedrzejView() {
   const badgeEl = document.getElementById('jedrzejNavBadge');
   if (!list) return;
 
-  const myQuotes = quotes.filter(q => q.etap === 'u_jedrzeja');
+  const myQuotes = quotes.filter(q => q.etap === 'u_jedrzeja')
+    .map(q => ({ ...q, _days: daysSince(q.data_jedrzej || (q.createdAt ? tsToDate(q.createdAt) : null)) }))
+    .sort((a, b) => (b._days || 0) - (a._days || 0));
   const count = myQuotes.length;
 
   if (countEl) countEl.textContent = count + (count === 1 ? ' zapytanie' : count < 5 ? ' zapytania' : ' zapytań');
@@ -3490,7 +3492,7 @@ function renderJedrzejView() {
   }
 
   list.innerHTML = myQuotes.map(q => {
-    const days = daysSince(q.data_jedrzej || (q.createdAt ? tsToDate(q.createdAt) : null));
+    const days = q._days !== undefined ? q._days : daysSince(q.data_jedrzej || (q.createdAt ? tsToDate(q.createdAt) : null));
     const urgentCls = days >= 5 ? 'days-urgent' : days >= 2 ? 'days-warn' : 'days-ok';
     return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;box-shadow:var(--shadow)">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
