@@ -2994,6 +2994,7 @@ function renderDashboard() {
 
   // Active quotes table
   const body = document.getElementById('dashQuotesBody');
+  if (!body) return;
   const active = quotes.filter(q => !['wygrane','przegrane'].includes(q.etap)).slice(0,8);
   if (!active.length) {
     body.innerHTML = `<tr><td colspan="5"><div class="empty-state" style="padding:24px"><div class="empty-state-icon">📋</div><div class="empty-state-title">Brak aktywnych zapytań</div></div></td></tr>`;
