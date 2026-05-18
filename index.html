@@ -1240,7 +1240,7 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
   </button>
   <button class="nav-tab" onclick="switchPage('arkusz')" id="tab-arkusz">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-    Arkusz zamówień
+    Zamówienia
   </button>
 </nav>
 
@@ -2138,7 +2138,10 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
         </div>
         <div class="form-group">
           <label class="form-label">Klient <span class="form-label-hint">(nazwa firmy)</span></label>
-          <input type="text" class="form-control" id="f_klient" placeholder="np. Piechowiak">
+          <div style="position:relative">
+            <input type="text" class="form-control" id="f_klient" placeholder="np. Piechowiak" oninput="showKlientSuggestions()" autocomplete="off">
+            <div id="klientSuggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);z-index:200;max-height:200px;overflow-y:auto;box-shadow:var(--shadow-lg)"></div>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Email klienta</label>
@@ -2147,6 +2150,10 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
         <div class="form-group">
           <label class="form-label">Tel. klienta</label>
           <input type="text" class="form-control" id="f_tel" placeholder="000 000 000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Wartość zamówienia (zł)</label>
+          <input type="number" class="form-control" id="f_wartosc" placeholder="0">
         </div>
       </div>
 
@@ -4936,6 +4943,21 @@ function z_renderTable() {
       : `<button class="check-btn check-no" onclick="z_toggleCheck('${o.id}','zamowione',event)">✗</button>`;
     const modBy = o.lastModifiedBy ? `<span class="modified-by">zm. ${o.lastModifiedBy.split('@')[0]}</span>` : '';
 
+    // Days overdue calculation
+    let terminStatus = '—';
+    if (o.termin && o.status !== 'Zamknięte ✓') {
+      const daysLeft = Math.floor((new Date(o.termin) - new Date(today())) / 86400000);
+      if (daysLeft < 0) {
+        terminStatus = `<span style="color:var(--red);font-weight:600;font-family:'IBM Plex Mono',monospace;font-size:12px">${Math.abs(daysLeft)}d po terminie</span>`;
+      } else if (daysLeft === 0) {
+        terminStatus = `<span style="color:var(--orange);font-weight:600;font-size:12px">Dziś!</span>`;
+      } else if (daysLeft <= 3) {
+        terminStatus = `<span style="color:var(--orange);font-family:'IBM Plex Mono',monospace;font-size:12px">${daysLeft}d</span>`;
+      } else {
+        terminStatus = `<span style="color:var(--green);font-family:'IBM Plex Mono',monospace;font-size:12px">${daysLeft}d</span>`;
+      }
+    }
+
     return `<tr class="${o.status === 'Zamknięte ✓' ? 'row-closed' : ''}" onclick="z_openEditOrder('${o.id}')">
       <td><span class="order-nr">${o.nr || '—'}</span>${modBy}</td>
       <td><span class="client-name">${o.klient || '—'}</span><br><span style="font-size:11px;color:var(--text-3)">${o.tel || ''}</span></td>
@@ -4943,6 +4965,7 @@ function z_renderTable() {
       <td>${zamDisplay}</td>
       <td>${szybyDisplay}</td>
       <td>${terminDisplay}</td>
+      <td>${terminStatus}</td>
       <td onclick="event.stopPropagation()">
         <div class="mail-btn-group">
           <button class="mail-btn ${o.mail1 === '✓' ? 'sent' : ''}" onclick="z_openEmailPreview('${o.id}', 1, event)">
@@ -5043,6 +5066,39 @@ function z_openAddOrder() {
   document.getElementById('zOrderOverlay').classList.add('show');
 }
 
+function showKlientSuggestions() {
+  const input = document.getElementById('f_klient');
+  const box = document.getElementById('klientSuggestions');
+  if (!input || !box) return;
+  const val = input.value.toLowerCase().trim();
+  if (val.length < 2) { box.style.display = 'none'; return; }
+  const matches = clients.filter(c => c.nazwa.toLowerCase().includes(val)).slice(0, 8);
+  if (!matches.length) { box.style.display = 'none'; return; }
+  box.innerHTML = matches.map(c => `
+    <div onclick="selectKlientSuggestion('${c.id}')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border)" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
+      <div style="font-weight:500">${c.nazwa}</div>
+      ${c.email ? `<div style="font-size:11px;color:var(--text-3)">${c.email}</div>` : ''}
+    </div>`).join('');
+  box.style.display = 'block';
+}
+
+function selectKlientSuggestion(clientId) {
+  const c = clients.find(x => x.id === clientId);
+  if (!c) return;
+  document.getElementById('f_klient').value = c.nazwa;
+  if (c.email) document.getElementById('f_email').value = c.email;
+  if (c.tel) document.getElementById('f_tel').value = c.tel;
+  document.getElementById('klientSuggestions').style.display = 'none';
+}
+
+// Hide suggestions when clicking outside
+document.addEventListener('click', e => {
+  const box = document.getElementById('klientSuggestions');
+  if (box && !box.contains(e.target) && e.target.id !== 'f_klient') {
+    box.style.display = 'none';
+  }
+});
+
 function z_openEditOrder(id) {
   const o = zOrders.find(x => x.id === id);
   if (!o) return;
@@ -5072,7 +5128,7 @@ function z_closeOrderOnBg(e) {
 }
 
 function z_clearForm() {
-  ['f_nr','f_klient','f_email','f_tel','f_dostawa_mat','f_termin','f_koordynacja','f_uwagi','f_szyby_auto','f_fv_auto'].forEach(id => {
+  ['f_nr','f_klient','f_email','f_tel','f_dostawa_mat','f_termin','f_koordynacja','f_uwagi','f_szyby_auto','f_fv_auto','f_wartosc'].forEach(id => {
     document.getElementById(id).value = '';
   });
   z_setBrakujace([]);
@@ -5090,6 +5146,7 @@ function z_fillForm(o) {
   document.getElementById('f_koordynacja').value = o.koordynacja || '';
   document.getElementById('f_status').value = o.status || 'Oczekuje na materiały';
   document.getElementById('f_uwagi').value = o.uwagi || '';
+  document.getElementById('f_wartosc').value = o.wartosc || '';
   z_updateAutoFields();
 }
 
@@ -5148,6 +5205,7 @@ async function z_saveOrder() {
     koordynacja: document.getElementById('f_koordynacja').value.trim(),
     status: document.getElementById('f_status').value,
     uwagi: document.getElementById('f_uwagi').value.trim(),
+    wartosc: document.getElementById('f_wartosc').value || '',
     lastModifiedBy: currentUser?.email,
     lastModifiedAt: firebase.firestore.FieldValue.serverTimestamp(),
   };
