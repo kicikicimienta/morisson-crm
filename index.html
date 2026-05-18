@@ -1158,6 +1158,16 @@ textarea.form-control { resize: vertical; min-height: 72px; }
 tbody tr.row-closed { opacity: 0.4; }
 tbody tr.row-closed td { text-decoration: line-through; color: var(--text-3); }
 tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .mat-tag, tbody tr.row-closed .date-cell, tbody tr.row-closed .check-btn, tbody tr.row-closed .btn-icon { text-decoration: none; }
+
+/* Compact orders table */
+#ordersTable { font-size: 11px; }
+#ordersTable th { padding: 6px 6px; font-size: 10px; letter-spacing: 0.3px; white-space: nowrap; }
+#ordersTable td { padding: 5px 6px; }
+#ordersTable .order-nr { font-size: 11px; }
+#ordersTable .client-name { font-size: 12px; }
+#ordersTable .mail-btn { padding: 2px 5px; font-size: 10px; }
+#ordersTable .check-btn { width: 22px; height: 22px; font-size: 11px; }
+
 </style>
 </head>
 <body>
@@ -1418,9 +1428,9 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
       <table id="ordersTable">
         <thead>
           <tr>
-            <th style="width:80px">Nr</th><th>Klient</th><th>Brakujące mat.</th>
-            <th>Zamówione?</th><th>Zamów szyby do</th><th>Termin dostawy</th>
-            <th>Dni po terminie</th><th>Wartość netto (zł)</th><th>✉ Komunikacja</th><th>Wyślij FV do</th><th>FV wysłana</th>
+            <th style="min-width:60px;width:70px">Nr</th><th>Klient</th><th>Brakuje</th>
+            <th>Zam.?</th><th>Szyby do</th><th>Termin</th>
+            <th>Po term.</th><th>Wartość</th><th>✉ Mail</th><th>FV do</th><th>FV</th>
             <th>Wpłata</th><th>Status</th><th>Uwagi</th><th></th>
           </tr>
         </thead>
