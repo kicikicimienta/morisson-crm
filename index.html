@@ -1712,7 +1712,7 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
           <input type="number" class="form-control" id="q_wartosc" placeholder="np. 25000">
         </div>
         <div class="form-group form-full">
-          <label class="form-label">Notatka</label>
+          <label class="form-label">Treść zapytania</label>
           <textarea class="form-control" id="q_notatka" placeholder="Szczegóły, ustalenia, następny krok…"></textarea>
         </div>
         <div class="form-group form-full">
@@ -3048,7 +3048,7 @@ function renderQuotes() {
     return `<tr onclick="openEditQuote('${x.id}')">
       <td onclick="event.stopPropagation()"><input type="checkbox" class="quote-checkbox" value="${x.id}" onchange="updateQuoteSelection()" onclick="event.stopPropagation()" style="cursor:pointer;accent-color:var(--accent)"></td>
       <td><strong>${clientName(x.klientId)}</strong></td>
-      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;color:var(--text-2);font-size:12px">${x.opis||'—'}${x.link ? `<br><a href="${x.link}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;color:var(--accent)">📎 zestawienie</a>` : ''}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;color:var(--text-2);font-size:12px">${x.opis||'—'}${x.link ? `<br><a href="${x.link}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;color:var(--accent)">📎 zestawienie</a>` : ''}${x.notatka ? `<br><span style="font-size:11px;color:var(--text-3);font-style:italic">${x.notatka.slice(0,60)}${x.notatka.length>60?'…':''}</span>` : ''}</td>
       <td>${stageBadge(x.etap)}</td>
       <td style="font-size:12px">${priorityIcon(x.priorytet)}</td>
       <td style="font-size:12px;color:var(--text-2)">${formatDatePL(x.data_jedrzej)}</td>
@@ -4495,7 +4495,7 @@ async function saveQuote() {
   const data = {
     klientId, opis: document.getElementById('q_opis').value.trim(),
     etap: document.getElementById('q_etap').value, priorytet: document.getElementById('q_priorytet').value,
-    data_jedrzej: document.getElementById('q_data_jedrzej').value,
+    data_jedrzej: document.getElementById('q_data_jedrzej').value || (document.getElementById('q_etap').value === 'u_jedrzeja' ? today() : ''),
     wartosc: document.getElementById('q_wartosc').value,
     notatka: document.getElementById('q_notatka').value.trim(),
     link: document.getElementById('q_link').value.trim(),
