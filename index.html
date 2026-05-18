@@ -4370,7 +4370,13 @@ function switchPage(page) {
 
 // ─── MODALS ───
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-function closeOnBg(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+function closeOnBg(e, id) {
+  if (e.target !== document.getElementById(id)) return;
+  // Don't close if user is selecting text
+  const sel = window.getSelection();
+  if (sel && sel.toString().length > 0) return;
+  closeModal(id);
+}
 
 // CLIENT MODAL
 function openAddClient() {
