@@ -1418,9 +1418,9 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
       <table id="ordersTable">
         <thead>
           <tr>
-            <th>Nr zamówienia</th><th>Klient</th><th>Brakujące mat.</th>
+            <th style="width:80px">Nr</th><th>Klient</th><th>Brakujące mat.</th>
             <th>Zamówione?</th><th>Zamów szyby do</th><th>Termin dostawy</th>
-            <th>✉ Komunikacja</th><th>Wyślij FV do</th><th>FV wysłana</th>
+            <th>Dni po terminie</th><th>Wartość netto (zł)</th><th>✉ Komunikacja</th><th>Wyślij FV do</th><th>FV wysłana</th>
             <th>Wpłata</th><th>Status</th><th>Uwagi</th><th></th>
           </tr>
         </thead>
@@ -2152,7 +2152,7 @@ tbody tr.row-closed .order-nr, tbody tr.row-closed .badge, tbody tr.row-closed .
           <input type="text" class="form-control" id="f_tel" placeholder="000 000 000">
         </div>
         <div class="form-group">
-          <label class="form-label">Wartość zamówienia (zł)</label>
+          <label class="form-label">Wartość zamówienia netto (zł)</label>
           <input type="number" class="form-control" id="f_wartosc" placeholder="0">
         </div>
       </div>
@@ -4966,6 +4966,7 @@ function z_renderTable() {
       <td>${szybyDisplay}</td>
       <td>${terminDisplay}</td>
       <td>${terminStatus}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:12px;white-space:nowrap">${o.wartosc ? Number(o.wartosc).toLocaleString('pl')+' zł' : '—'}</td>
       <td onclick="event.stopPropagation()">
         <div class="mail-btn-group">
           <button class="mail-btn ${o.mail1 === '✓' ? 'sent' : ''}" onclick="z_openEmailPreview('${o.id}', 1, event)">
