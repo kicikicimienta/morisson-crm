@@ -2949,7 +2949,9 @@ function renderDashboard() {
     return;
   }
   body.innerHTML = active.map(q => {
-    const days = daysSince(q.createdAt ? tsToDate(q.createdAt) : null);
+    const days = q.etap === 'u_jedrzeja' 
+      ? daysSince(q.data_jedrzej || (q.createdAt ? tsToDate(q.createdAt) : null))
+      : daysSince(q.createdAt ? tsToDate(q.createdAt) : null);
     return `<tr onclick="openEditQuote('${q.id}')">
       <td onclick="event.stopPropagation()"><input type="checkbox" class="dash-quote-checkbox" value="${q.id}" onchange="updateDashSelection()" onclick="event.stopPropagation()" style="cursor:pointer;accent-color:var(--accent)"></td>
       <td><strong>${clientName(q.klientId)}</strong></td>
@@ -3057,7 +3059,9 @@ function renderQuotes() {
     return;
   }
   body.innerHTML = filtered.map(x => {
-    const days = daysSince(x.createdAt ? tsToDate(x.createdAt) : null);
+    const days = x.etap === 'u_jedrzeja'
+      ? daysSince(x.data_jedrzej || (x.createdAt ? tsToDate(x.createdAt) : null))
+      : daysSince(x.createdAt ? tsToDate(x.createdAt) : null);
     const updatedDate = x.updatedAt ? tsToDate(x.updatedAt) : '';
     return `<tr onclick="openEditQuote('${x.id}')">
       <td onclick="event.stopPropagation()"><input type="checkbox" class="quote-checkbox" value="${x.id}" onchange="updateQuoteSelection()" onclick="event.stopPropagation()" style="cursor:pointer;accent-color:var(--accent)"></td>
